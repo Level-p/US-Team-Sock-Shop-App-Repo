@@ -1,0 +1,100 @@
+pipeline {
+  agent any
+  stages {
+    stage ('Deploying to stage environment') {
+      steps {
+        script {
+          slackSend(
+            channel: '9th-dec-sock-shop-project-kubeadm',
+            message: 'Starting deployment to stage environment...',
+            tokenCredentialId: 'slack',
+            color: '#FFFF00' // Yellow for ongoing process
+          )
+        }
+        sshagent(['ansible-key']) {
+          sh '''
+            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@34.245.162.119" ubuntu@10.0.1.181 "ansible-playbook /home/ubuntu/playbooks/stage-env.yaml"
+          '''
+        }
+        script {
+          slackSend(
+            channel: '9th-dec-sock-shop-project-kubeadm',
+            message: 'Stage environment deployment completed successfully.',
+            tokenCredentialId: 'slack',
+            color: '#36A64F' // Green for success
+          )
+        }
+      }
+    }
+    stage ('Prompt for approval') {
+      steps {
+        script {
+          slackSend(
+            channel: '9th-dec-sock-shop-project-kubeadm',
+            message: 'Awaiting approval for production deployment.',
+            tokenCredentialId: 'slack',
+            color: '#FFFF00' // Yellow for pending action
+          )
+        }
+        timeout(activity: true, time: 5) {
+          input message: 'Review before approval', submitter: 'admin'
+        }
+        script {
+          slackSend(
+            channel: '9th-dec-sock-shop-project-kubeadm',
+            message: 'Approval received. Proceeding to production deployment.',
+            tokenCredentialId: 'slack',
+            color: '#36A64F' // Green for success
+          )
+        }
+      }
+    }
+    stage ('Deploying to prod environment') {
+      steps {
+        script {
+          slackSend(
+            channel: '9th-dec-sock-shop-project-kubeadm',
+            message: 'Starting deployment to production environment...',
+            tokenCredentialId: 'slack',
+            color: '#FFFF00' // Yellow for ongoing process
+          )
+        }
+        sshagent(['ansible-key']) {
+          sh '''
+            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@34.245.162.119" ubuntu@10.0.1.181 "ansible-playbook /home/ubuntu/playbooks/prod-env.yaml"
+          '''
+        }
+        script {
+          slackSend(
+            channel: '9th-dec-sock-shop-project-kubeadm',
+            message: 'Production environment deployment completed successfully.',
+            tokenCredentialId: 'slack',
+            color: '#36A64F' // Green for success
+          )
+        }
+      }
+    }
+  }
+  post {
+    failure {
+      script {
+        slackSend(
+          channel: '9th-dec-sock-shop-project-kubeadm',
+          message: "Pipeline failed during stage: ${env.STAGE_NAME}",
+          tokenCredentialId: 'slack',
+          color: '#FF0000' // Red for failure
+        )
+      }
+    }
+    success {
+      script {
+        slackSend(
+          channel: '9th-dec-sock-shop-project-kubeadm',
+          message: "Pipeline executed successfully.",
+          tokenCredentialId: 'slack',
+          color: '#36A64F' // Green for success
+        )
+      }
+    }
+  }
+}
