@@ -36,7 +36,7 @@ pipeline {
             color: '#FFFF00' // Yellow for ongoing process
           )
         }
-          sh "docker run -v \$(pwd):/zap/wrk/:rw -u \$(id -u \${USER}):$(id -g \${USER}) -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.eamanzetec.com.ng -g gen.conf -r testreport.html"
+          sh '''docker run -v $(pwd):/zap/wrk/:rw -u $(id -u):$(id -g) -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.eamanzetec.com.ng -g gen.conf -r testreport.html'''
         script {
           slackSend(
             channel: '9th-dec-sock-shop-project-kubeadm',
