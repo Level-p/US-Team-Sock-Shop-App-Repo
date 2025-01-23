@@ -28,23 +28,27 @@ pipeline {
     }
     stage ('Dynamic application security test') {
       steps {
-        script {
-          slackSend(
-            channel: '9th-dec-sock-shop-project-kubeadm',
-            message: 'Starting Dynamic application security test...',
-            tokenCredentialId: 'slack',
-            color: '#FFFF00' // Yellow for ongoing process
-          )
-        }
-          sh ''' chmod 777 $(pwd) '''
-          sh '''docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.eamanzetec.com.ng -g gen.conf -r testreport.html'''
-        script {
-          slackSend(
-            channel: '9th-dec-sock-shop-project-kubeadm',
-            message: 'Dynamic application security test completed successfully.',
-            tokenCredentialId: 'slack',
-            color: '#36A64F' // Green for success
-          )
+        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+          script {
+            slackSend(
+              channel: '9th-dec-sock-shop-project-kubeadm',
+              message: 'Starting Dynamic application security test...',
+              tokenCredentialId: 'slack',
+              color: '#FFFF00' // Yellow for ongoing process
+            )
+          }
+          sh '''
+            chmod 777 $(pwd)
+            docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.eamanzetec.com.ng -g gen.conf -r testreport.html
+          '''
+          script {
+            slackSend(
+              channel: '9th-dec-sock-shop-project-kubeadm',
+              message: 'Dynamic application security test completed successfully.',
+              tokenCredentialId: 'slack',
+              color: '#36A64F' // Green for success
+            )
+          }
         }
       }
     }
