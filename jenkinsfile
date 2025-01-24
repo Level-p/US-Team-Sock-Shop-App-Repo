@@ -13,7 +13,7 @@ pipeline {
         }
         sshagent(['ansible-key']) {
           sh '''
-            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@34.247.136.168" ubuntu@10.0.1.158 "ansible-playbook /home/ubuntu/playbooks/stage.yml"
+            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@54.74.89.95" ubuntu@10.0.1.232 "ansible-playbook /home/ubuntu/playbooks/stage.yml"
           '''
         }
         script {
@@ -87,7 +87,7 @@ pipeline {
         }
         sshagent(['ansible-key']) {
           sh '''
-            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@34.247.136.168" ubuntu@10.0.1.158 "ansible-playbook /home/ubuntu/playbooks/prod.yml"
+            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@54.74.89.95" ubuntu@10.0.1.232 "ansible-playbook /home/ubuntu/playbooks/prod.yml"
           '''
         }
         script {
