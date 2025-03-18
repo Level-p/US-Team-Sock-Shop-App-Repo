@@ -5,14 +5,22 @@ pipeline {
       steps {
         sshagent(['ansible-key']) {
           sh '''
-            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@3.253.35.98" ubuntu@10.0.4.121 "ansible-playbook /home/ubuntu/playbooks/stage-env.yaml"
+            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@54.195.23.137" ubuntu@10.0.4.18 "ansible-playbook /home/ubuntu/playbooks/stage.yml"
           '''
         }
       }
     }
     stage ('slack notification a'){
       steps {
-        slackSend channel: 'Cloudhight', message: 'New Stage Deployment', teamDomain: '16th-sep-sock-shop-kubeadm-project', tokenCredentialId: 'slack'
+        slackSend channel: 'Cloudhight', message: 'New Stage Deployment', teamDomain: '24th-february-sock-shop-kubeadm-project', tokenCredentialId: 'slack'
+      }
+    }
+    stage ('DAST Scan'){
+      steps {
+        sh '''
+            chmod 777 $(pwd)
+            docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.eamanzetec.com.ng -g gen.conf -r testreport.html
+        '''
       }
     }
     stage ('prompt for approval'){
@@ -26,14 +34,14 @@ pipeline {
       steps {
         sshagent(['ansible-key']) {
           sh '''
-            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@3.253.35.98" ubuntu@10.0.4.121 "ansible-playbook /home/ubuntu/playbooks/prod-env.yaml"
+            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@54.195.23.137" ubuntu@10.0.4.18 "ansible-playbook /home/ubuntu/playbooks/prod.yml"
           '''
         }
       }
     }
     stage ('slack notification b'){
       steps {
-        slackSend channel: 'Cloudhight', message: 'New Production Deployment', teamDomain: '16th-sep-sock-shop-kubeadm-project', tokenCredentialId: 'slack'
+        slackSend channel: 'Cloudhight', message: 'New Production Deployment', teamDomain: '24th-february-sock-shop-kubeadm-project', tokenCredentialId: 'slack'
       }
     }
   }
