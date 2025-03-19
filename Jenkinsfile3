@@ -1,11 +1,15 @@
 pipeline {
   agent any
+  environment {
+    BASTION_IP = credentials('bastion-ip')
+    ANSIBLE_IP = credentials('ansible-ip')
+  }
   stages {
     stage ('deploying to stage environment') {
       steps {
         sshagent(['ansible-key']) {
           sh '''
-            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@54.195.23.137" ubuntu@10.0.4.18 "ansible-playbook /home/ubuntu/playbooks/stage.yml"
+            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@${BASTION_IP}" ubuntu@${ANSIBLE_IP} "ansible-playbook /home/ubuntu/playbooks/stage.yml"
           '''
         }
       }
@@ -34,7 +38,7 @@ pipeline {
       steps {
         sshagent(['ansible-key']) {
           sh '''
-            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@54.195.23.137" ubuntu@10.0.4.18 "ansible-playbook /home/ubuntu/playbooks/prod.yml"
+            ssh -t -t -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@${BASTION_IP}" ubuntu@${ANSIBLE_IP} "ansible-playbook /home/ubuntu/playbooks/prod.yml"
           '''
         }
       }
