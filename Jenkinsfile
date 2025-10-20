@@ -3,7 +3,7 @@ pipeline {
   environment {
     BASTION_INSTANCE_ID = credentials('bastion-id')
     ANSIBLE_IP = credentials('ansible-ip')  // Keeping IP since we need it for port 22 connection
-    AWS_REGION = 'eu-west-1'
+    AWS_REGION = 'eu-west-2'
   }
   stages {
     stage ('Deploying to Stage Environment') {
