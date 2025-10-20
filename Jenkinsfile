@@ -38,7 +38,7 @@ pipeline {
     
     stage ('Slack Notification for prod') {
       steps {
-        slackSend channel: 'Cloudhight', message: 'New Stage Deployment', teamDomain: '8th-sept-2025-sock-shop-e-commerce-project-eu-team1', tokenCredentialId: 'slack'
+        slackSend channel: 'Cloudhight', message: 'New Stage Deployment', teamDomain: '8th-sept-2025-sock-shop-e-commerce-project-eu-team1', tokenCredentialId: 'slack-cred'
       }
     }
     
@@ -46,7 +46,7 @@ pipeline {
       steps {
         sh '''
           chmod 777 $(pwd)
-          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.work-experience-2025.buzz -g gen.conf -r testreport.html || true
+          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.stevenincloud.online -g gen.conf -r testreport.html || true
         '''
       }
     }
@@ -88,7 +88,7 @@ pipeline {
     
     stage ('Slack Notification') {
       steps {
-        slackSend channel: 'Cloudhight', message: 'New Production Deployment', teamDomain: '8th-sept-2025-sock-shop-e-commerce-project-eu-team1', tokenCredentialId: 'slack'
+        slackSend channel: 'Cloudhight', message: 'New Production Deployment', teamDomain: '8th-sept-2025-sock-shop-e-commerce-project-eu-team1', tokenCredentialId: 'slack-cred'
       }
     }
   }
